@@ -1,53 +1,86 @@
-class Validator {
-//   constructor() {
-//     // this.options = {...props};
-//   }
-
-  postalCode() { // def postalCode
-    this.startsWith = 'ZIP';
-    return this;
-  }
-
-  setPostalCodeLengthConstraint(mn, mx = Infinity) {
-    this.minLength = mn;
-    this.maxLength = mx;
-    return this;
-  }
-
-  isCode(str) {
-    return `${str}`.startsWith(this.startsWith);
-  }
-
-  isLengthValid(str) {
-    if (this.minLength === undefined) {
-      return true;
-    }
-    return `${str}`.split('_').at(1).length >= this.minLength
-        && `${str}`.split('_').at(1).length <= this.maxLength;
+class PostalCodeValid {
+  constructor() {
+    this.minLength = 0;
+    this.maxLength = Infinity;
   }
 
   isValid(str) {
-    return this.isCode(str) && this.isLengthValid(str);
-    // return str.startsWith('ZIP');
+    if (typeof str !== 'string' || !str.startsWith('ZIP_')) return false;
+    const afterZIP = str.length - 4;
+    return afterZIP >= this.minLength && afterZIP <= this.maxLength;
+  }
+
+  setPostalCodeLengthConstraint(min, max = Infinity) {
+    this.minLength = min;
+    this.maxLength = max;
+    return this;
   }
 }
 
-// const val = new Validator();
-// console.log(val.postalCode());
+class IpAddressValid {
+  constructor() {
+    this.ipValues = false;
+  }
+
+  isValid(ip) {
+    this.ip = ip;
+    return typeof ip === 'string' && ip.startsWith('27.') && this.ipValues;
+  }
+
+  ipAddressValues() {
+    let array = '';
+    if (typeof this.ip === 'string') {
+      array = this.ip.split('.')
+      .filter((item) => Number(item) >= 0 && Number(item) <= 255);
+      this.ipValues = array.length === 4;
+    }
+    return this;
+  }
+}
+
+class Shaping {
+  isValid() {
+
+  }
+
+  shape() {
+    
+  }
+}
+
+class Validator {
+  constructor() {
+    this.startsWith = 'ZIP_';
+  }
+
+  postalCode() {
+    return new PostalCodeValid();
+  }
+
+  ipAddress() {
+    return new IpAddressValid();
+  }
+
+  user() {
+    return new Shaping();
+  }
+}
+
+
+const valid = new Validator();
+const postal = valid.postalCode().setPostalCodeLengthConstraint(2);
+
+console.log(postal.isValid('ZIP_123'));
+console.log(postal.isValid('ZII_123'));
+console.log(postal.isValid(123));
+const aaa = '27.0.0.1.257'.split('.')
+      .filter((item) => Number(item) >= 0 && Number(item) <= 255);
+console.log('27.0.0.1.4'.split('.'))
+
 const v = new Validator();
-console.log(v);
 
-const postalCodeSchema1 = v.postalCode();
-console.log(postalCodeSchema1);
-console.log(postalCodeSchema1.isValid('ZIP_12345')); // true
+const ipAddressSchema1 = v.ipAddress().ipAddressValues();
+console.log(ipAddressSchema1.isValid('22'));
 
-const postalCodeSchema2 = v.postalCode().setPostalCodeLengthConstraint(7);
-console.log(postalCodeSchema2);
-console.log(postalCodeSchema2.isValid('ZIP_6789056889')); // true
-postalCodeSchema2.isValid('ZIP_54321'); // false
-
-const postalCodeSchema3 = v.postalCode().setPostalCodeLengthConstraint(4, 6);
-console.log(postalCodeSchema3.isValid('ZIP_54321')); // true
-postalCodeSchema3.isValid('ZIP_67'); // false
 
 export default Validator;
