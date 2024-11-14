@@ -3,10 +3,6 @@ import IpAddressValid from './src/IpAddressSchema.js';
 import Shaping from './src/UserSchema.js';
 
 class Validator {
-  constructor() {
-    this.startsWith = 'ZIP_';
-  }
-
   postalCode() {
     return new PostalCodeValid();
   }
@@ -33,6 +29,13 @@ console.log('27.0.0.1.4'.split('.'));
 const v = new Validator();
 
 const ipAddressSchema1 = v.ipAddress().ipAddressValues();
-console.log(ipAddressSchema1.isValid('22'));
+console.log(ipAddressSchema1.isValid('27.16'));
+
+const userSchema = v.user().shape({
+  postalCode: v.postalCode().setPostalCodeLengthConstraint(7),
+  ipAddress: v.ipAddress().ipAddressValues(),
+});
+
+console.log(userSchema.isValid({ postalCode: 'ZIP_6789056889', ipAddress: '27.16.0' }));
 
 export default Validator;

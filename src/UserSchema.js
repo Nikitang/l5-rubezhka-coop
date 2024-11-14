@@ -1,10 +1,12 @@
 class Shaping {
-  isValid() {
-
+  isValid(user) {
+    const validator = Object.keys(user).map((item) => this.schema[item].isValid(user[item]));
+    return !validator.includes(false);
   }
 
-  shape() {
-
+  shape(obj) {
+    this.schema = obj;
+    return this;
   }
 }
 
